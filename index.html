@@ -1,22 +1,3 @@
-<!--
-De-Factor Game
-Copyright (c) 2025 [Your Name/Organization]
-
-DUAL LICENSING:
-This work is available under dual licensing:
-1. Non-Commercial License - For personal, educational, and non-profit use
-2. Commercial License - For commercial use
-
-For detailed license terms, see:
-- LICENSE-NONCOMMERCIAL.md for non-commercial use
-- LICENSE-COMMERCIAL.md for commercial use
-
-To obtain a commercial license, please contact:
-Shengyan (Sandy) Liu, sandy.mogmdo@gmail.com
-
-Version: 1.0
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,11 +21,13 @@ Version: 1.0
         .container {
             position: relative;
             width: 600px;
-            height: 800px;
+            max-width: 95vw;
+            height: 90vh; /* Changed from fixed 800px to 90% of viewport height */
+            max-height: 800px;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            overflow: auto; /* Allow scrolling if needed */
             display: flex;
             flex-direction: column;
         }
@@ -95,8 +78,9 @@ Version: 1.0
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            max-height: 600px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -120,6 +104,7 @@ Version: 1.0
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0; /* Needed for proper flexbox behavior */
         }
         
         .game-header {
@@ -146,12 +131,33 @@ Version: 1.0
             border-radius: 20px;
         }
         
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #34495e;
+        }
+        
+        #endTestButton {
+            padding: 10px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        
         #gameBoard {
             flex: 1;
             position: relative;
             display: flex;
             background-color: #ecf0f1;
             overflow: hidden;
+            min-height: 300px; /* Ensure minimum height for gameplay */
         }
         
         .lane {
@@ -229,20 +235,6 @@ Version: 1.0
         
         .factor-button:active {
             transform: scale(0.95);
-        }
-
-        #endTestButton {
-            padding: 15px;
-            margin: 15px auto;
-            display: block;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            width: 200px;
         }
         
         /* End Screen */
@@ -330,6 +322,35 @@ Version: 1.0
             0% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-50px); }
         }
+        
+        /* Media queries for responsive design */
+        @media (max-height: 700px) {
+            .game-title {
+                font-size: 36px;
+                margin-bottom: 20px;
+            }
+            
+            .button {
+                padding: 10px 30px;
+                font-size: 18px;
+            }
+            
+            .factor-button {
+                padding: 10px;
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .combo-display {
+                font-size: 16px;
+            }
+            
+            .factor-button {
+                font-size: 18px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -369,6 +390,11 @@ Version: 1.0
                 <div class="combo-display" id="comboDisplay">Combo: 0</div>
                 <div class="score" id="score">Score: 0</div>
             </div>
+            <!-- Added game controls with End Game button -->
+            <div class="game-controls">
+                <div>Game Controls</div>
+                <button id="endTestButton">End Game</button>
+            </div>
             <div id="gameBoard">
                 <div class="lane" id="lane1"></div>
                 <div class="lane" id="lane2"></div>
@@ -382,7 +408,6 @@ Version: 1.0
                 <button class="factor-button" data-factor="11">11</button>
                 <button class="factor-button" data-factor="13">13</button>
             </div>
-            <button id="endTestButton">End Game</button>
         </div>
         
         <!-- End Screen -->
@@ -502,7 +527,7 @@ Version: 1.0
                 howToPlayButton.addEventListener('click', showHowToPlay);
                 closeHowToButton.addEventListener('click', hideHowToPlay);
                 playAgainButton.addEventListener('click', resetGame);
-                endTestButton.addEventListener('click', forceEndGame); // Fixed function name
+                endTestButton.addEventListener('click', forceEndGame); 
                 
                 factorButtons.forEach(button => {
                     button.addEventListener('click', () => {
@@ -510,6 +535,14 @@ Version: 1.0
                         defactorNumber(factor);
                     });
                 });
+                
+                // Handle window resize for responsive adjustments
+                window.addEventListener('resize', updateGameLayout);
+            }
+            
+            function updateGameLayout() {
+                // Update any layout parameters if needed on resize
+                // For example, recalculate lane heights, etc.
             }
             
             function showHowToPlay() {
@@ -631,7 +664,9 @@ Version: 1.0
             }
             
             function updateNumbers() {
-                const laneHeight = lanes[0].offsetHeight;
+                if (!gameBoard.offsetHeight) return; // Skip if gameBoard not visible yet
+                
+                const laneHeight = gameBoard.offsetHeight;
                 const numbersToRemove = [];
                 
                 activeNumbers.forEach((number, index) => {
@@ -789,7 +824,7 @@ Version: 1.0
                 // We'll change gameActive to false only when showing the end screen
             }
             
-            // New function specifically for the End Game button
+            // Function specifically for the End Game button
             function forceEndGame() {
                 // Clear all intervals
                 clearInterval(gameInterval);
