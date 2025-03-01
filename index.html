@@ -483,7 +483,7 @@
                 howToPlayButton.addEventListener('click', showHowToPlay);
                 closeHowToButton.addEventListener('click', hideHowToPlay);
                 playAgainButton.addEventListener('click', resetGame);
-                endTestButton.addEventListener('click', endGame);
+                endTestButton.addEventListener('click', forceEndGame); // Fixed function name
                 
                 factorButtons.forEach(button => {
                     button.addEventListener('click', () => {
@@ -768,6 +768,26 @@
                 // Only stop new number generation, but keep game active
                 // to allow de-factoring of remaining numbers
                 // We'll change gameActive to false only when showing the end screen
+            }
+            
+            // New function specifically for the End Game button
+            function forceEndGame() {
+                // Clear all intervals
+                clearInterval(gameInterval);
+                clearInterval(numberGenerationInterval);
+                
+                // Stop the game immediately
+                gameActive = false;
+                
+                // Show end screen right away
+                finalScoreElement.textContent = `Score: ${score}`;
+                endScreen.style.display = 'flex';
+                
+                // Clear all numbers
+                lanes.forEach(lane => {
+                    lane.innerHTML = '';
+                });
+                activeNumbers = [];
             }
             
             function showEndScreen() {
